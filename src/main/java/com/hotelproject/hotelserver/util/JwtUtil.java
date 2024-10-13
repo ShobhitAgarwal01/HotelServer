@@ -22,7 +22,7 @@ public class JwtUtil {
         return Jwts.builder().setClaims(extraClaims).setSubject(details.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000*60*60*24))
-                .signWith(SignatureAlgorithm.HS256, getSigningKey()).compact();
+                .signWith(SignatureAlgorithm.HS512, getSigningKey()).compact();
     }
 
     public String generateToken(UserDetails userDetails){
@@ -58,6 +58,9 @@ public class JwtUtil {
 
     private Key getSigningKey(){
         byte[] keyBytes = Decoders.BASE64.decode("413F4428472B4B6250655368566D5970337336763979244226452948404D6351");
+        if (keyBytes.length < 32) {
+            throw new IllegalArgumentException("HS256 requires a key of at least 32 bytes.");
+        }
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
